@@ -155,6 +155,7 @@ const LoginPage = () => {
 
             {/* Submit button */}
             <button
+              id="btn-login"
               type="submit"
               disabled={isPending}
               className="mt-5 w-full rounded-[12px] bg-brand px-4 py-3 text-base font-semibold text-paper ring-1 ring-brand/50 outline-none transition-all hover:shadow-[0_10px_30px_-8px_rgba(255,90,54,0.7)] focus-visible:ring-2 focus-visible:ring-brand focus-visible:shadow-[0_0_0_4px_rgba(255,90,54,0.25)] disabled:opacity-60 disabled:cursor-not-allowed"
