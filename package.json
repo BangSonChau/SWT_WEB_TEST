@@ -7,8 +7,8 @@
     "dev:server": "npm run dev --prefix server",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "install:all": "npm install --prefix client && npm install --prefix server",
-    "test:e2e": "cd playwright-test && npx playwright test",
-    "test:e2e:ui": "cd playwright-test && npx playwright test --ui"
+    "test:e2e": "cd playwright-test && npm test",
+    "test:e2e:ui": "cd playwright-test && npm run test:ui"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

@@ -10,8 +10,8 @@ echo.
 set /p choice="Chon che do (1 hoac 2): "
 
 if "%choice%"=="1" (
-    npx playwright test --ui
+    npx playwright test --config=config/playwright.config.ts --ui
 ) else (
-    npx playwright test --headed
+    npx playwright test --config=config/playwright.config.ts --headed
     pause
 )

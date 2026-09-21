@@ -53,10 +53,13 @@ một bộ kiểm thử E2E chạy theo dữ liệu trong Excel bằng Playwrigh
 │       ├── middlewares/            # Error handler
 │       └── modules/auth/           # Route, controller, service, repository
 ├── playwright-test/                # Bộ test E2E chạy theo Excel
-│   ├── tests/dynamic-runner.spec.ts
+│   ├── config/playwright.config.ts
+│   ├── tests/specs/excel-driven.spec.ts
+│   ├── src/excel/                 # Excel loader, types và report writer
+│   ├── src/runner/                # Selector, action và test-case runner
 │   ├── reporters/excel-reporter.ts
-│   ├── test-case.xlsx              # File mẫu đầu vào
-│   └── Test_Report.xlsx            # File mẫu báo cáo
+│   ├── test-data/input/test-cases.xlsx
+│   └── artifacts/reports/Test_Report.xlsx
 └── package.json                    # Script chạy toàn project
 ```
 
@@ -68,12 +71,10 @@ một bộ kiểm thử E2E chạy theo dữ liệu trong Excel bằng Playwrigh
 - Cổng mặc định:
   - Frontend: `5173`
   - Backend: `5000`
-  - Playwright config hiện đặt `baseURL` là `http://localhost:5143`; khi
-    chạy test theo file mẫu, cần bảo đảm URL và frontend đang chạy khớp nhau.
 
 ## 5. Cấu hình biến môi trường
 
-Không commit các file `.env` thật. Tạo các file local sau:
+Không commit các file `.env` thật của ứng dụng. Tạo các file local sau:
 
 ### `client/.env`
 
@@ -172,7 +173,7 @@ npm run build
 
 ## 9. Bộ test E2E theo Excel
 
-File [`playwright-test/test-case.xlsx`](./playwright-test/test-case.xlsx) là
+File [`playwright-test/test-data/input/test-cases.xlsx`](./playwright-test/test-data/input/test-cases.xlsx) là
 nguồn chuẩn (single source of truth) cho đặc tả kiểm thử và là file mẫu public
 của project. Mọi test runner, locator, dữ liệu đầu vào và expected output cần
 được đối chiếu theo file này. File chứa hai sheet:
@@ -181,7 +182,7 @@ của project. Mọi test runner, locator, dữ liệu đầu vào và expected 
 - Sheet bước chạy: các cột `TC_ID`, `Step`, `Description`, `Action`,
   `Locator_Type`, `Locator_Value`, `Value`, `Expected`, `Stop_On_Fail`.
 
-`dynamic-runner.spec.ts` đọc sheet bước chạy, gom các dòng theo `TC_ID` và hỗ
+`excel-driven.spec.ts` đọc sheet bước chạy, gom các dòng theo `TC_ID` và hỗ
 trợ các action:
 
 | Action | Ý nghĩa |
@@ -191,6 +192,15 @@ trợ các action:
 | `CLICK` | Click phần tử |
 | `ASSERT_URL` | Kiểm tra URL hiện tại |
 | `ASSERT_TEXT` | Kiểm tra text của phần tử |
+
+Ví dụ một bước mở trang đăng nhập:
+
+| Action | Value |
+| --- | --- |
+| `GOTO` | `http://localhost:5173/login` |
+
+Muốn chạy test với môi trường khác, thay giá trị này trong
+[`test-cases.xlsx`](./playwright-test/test-data/input/test-cases.xlsx).
 
 Selector được tạo từ `Locator_Type`:
 
@@ -233,30 +243,19 @@ npm run test:e2e:ui
 Hoặc từ `playwright-test/`:
 
 ```bash
-npx playwright test
-npx playwright test --ui
-npx playwright test --headed
+npm test
+npm run test:ui
+npm run test:headed
 ```
 
 File `run-tool.bat` cũng cung cấp menu để chạy UI Mode hoặc chạy headed.
 
 Sau khi chạy, Playwright tạo HTML report trong `playwright-report/`. Excel
-reporter được cấu hình để xuất `Test_Report.xlsx`.
+reporter được cấu hình để xuất `artifacts/reports/Test_Report.xlsx`.
 
-## 10. Lưu ý hiện trạng test và report
+## 10. Tài liệu test
 
-- `TC_LOG_01` trong Excel kỳ vọng URL `/dashboard`. Đây là expected output
-  chuẩn; nếu code hiện tại chưa có route này thì cần bổ sung hoặc điều chỉnh
-  code theo Excel trước khi coi test là đạt.
-- Excel reporter sử dụng trực tiếp `test-case.xlsx` làm file nguồn và ghi kết
-  quả ra `Test_Report.xlsx`. Project không cần và không sử dụng file
-  `Book1.xlsx`.
-- Thông tin tài khoản trong Excel là dữ liệu mẫu phục vụ test. Khi thay bằng
-  tài khoản thật, không commit password hoặc secret vào repository.
-
-## 11. Tài liệu test
-
-- Test input: [`playwright-test/test-case.xlsx`](./playwright-test/test-case.xlsx)
-- Report template: [`playwright-test/Test_Report.xlsx`](./playwright-test/Test_Report.xlsx)
-- Dynamic runner: [`playwright-test/tests/dynamic-runner.spec.ts`](./playwright-test/tests/dynamic-runner.spec.ts)
+- Test input: [`playwright-test/test-data/input/test-cases.xlsx`](./playwright-test/test-data/input/test-cases.xlsx)
+- Report artifact: [`playwright-test/artifacts/reports/Test_Report.xlsx`](./playwright-test/artifacts/reports/Test_Report.xlsx)
+- Excel-driven runner: [`playwright-test/tests/specs/excel-driven.spec.ts`](./playwright-test/tests/specs/excel-driven.spec.ts)
 - Excel reporter: [`playwright-test/reporters/excel-reporter.ts`](./playwright-test/reporters/excel-reporter.ts)

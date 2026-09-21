@@ -3,6 +3,12 @@
     "exceljs": "^4.4.0",
     "xlsx": "^0.18.5"
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test --config=config/playwright.config.ts",
+    "test:ui": "playwright test --config=config/playwright.config.ts --ui",
+    "test:headed": "playwright test --config=config/playwright.config.ts --headed"
+  },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.2",
