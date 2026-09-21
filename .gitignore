@@ -21,3 +21,6 @@ yarn-error.log*
 pnpm-debug.log*
 
 /generated/prisma
+# Playwright test artifacts
+**/test-results/
+**/playwright-report/

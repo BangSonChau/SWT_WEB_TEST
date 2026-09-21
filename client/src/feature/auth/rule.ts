@@ -5,7 +5,7 @@ export const loginShemaZob = z
     email: z
       .string({ message: "Email ko đc để trống" })
       .min(3, { message: "Email cần ít nhất 3 kí tự" })
-      .email({ message: "Email ko đúng định dạng" }),
+      .email({ message: "Email không đúng định dạng" }),
 
     password: z
       .string({ message: "Password không được để trống" })
