@@ -18,13 +18,17 @@ export default class ExcelReporter implements Reporter {
     let note = '✔ Đạt chuẩn (Không phát hiện lỗi)';
 
     if (!isPassed && result.error) {
+      // Làm sạch các mã màu ANSI trong terminal
       const rawMsg = result.error.message ? result.error.message.replace(/\u001b\[.*?m/g, '') : '';
 
-      // Lấy toàn bộ đoạn text bắt đầu từ ký tự ❌
       const errorIndex = rawMsg.indexOf('❌');
       if (errorIndex !== -1) {
-        // Cắt bỏ phần stack trace dài dòng phía sau
-        const cleanMsg = rawMsg.substring(errorIndex).split('Call log:')[0].split('at ')[0].trim();
+        // Cắt bỏ phần Call log và Call Stack một cách an toàn bằng Regex
+        const cleanMsg = rawMsg
+          .substring(errorIndex)
+          .split(/Call log:/i)[0]
+          .split(/\n\s*at\s+/)[0]
+          .trim();
         note = cleanMsg;
       } else {
         note = rawMsg.split('\n')[0].trim();
@@ -88,7 +92,7 @@ export default class ExcelReporter implements Reporter {
       }
     });
 
-    // 2. Tìm các cột
+    // 2. Quét tìm vị trí các cột
     const today = new Date();
     const currentDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 
@@ -107,10 +111,18 @@ export default class ExcelReporter implements Reporter {
       });
     });
 
-    // Mở rộng cột Note để hiển thị chữ thoải mái
-    sheet.getColumn(colNoteIdx).width = 48;
+    // Cài độ rộng cột Note thoáng mắt
+    sheet.getColumn(colNoteIdx).width = 52;
 
-    // 3. Ghi dữ liệu vào từng hàng và format chiều cao
+    // Đường viền chuẩn giữ nét cho bảng tính
+    const thinBorder = {
+      top: { style: 'thin' as const },
+      left: { style: 'thin' as const },
+      bottom: { style: 'thin' as const },
+      right: { style: 'thin' as const }
+    };
+
+    // 3. Ghi dữ liệu vào từng hàng
     sheet.eachRow((row) => {
       const idCell = row.getCell(colIdIdx);
       const tcId = String(idCell.value || '').trim();
@@ -120,40 +132,54 @@ export default class ExcelReporter implements Reporter {
         const statusCell = row.getCell(colStatusIdx);
         const dateCell = row.getCell(colDateIdx);
         const noteCell = row.getCell(colNoteIdx);
+        const status = data.status.trim().toUpperCase();
+        const isPassedStatus = status === 'PASSED';
 
-        // Nâng chiều cao hàng để vừa vặn các dòng text
-        row.height = data.status === 'FAILED' ? 62 : 45;
+        // Tự động nâng chiều cao: dòng có lỗi giãn 65 để chứa 3 dòng text, pass giãn 45
+        row.height = isPassedStatus ? 45 : 65;
 
         // Cột Status
-        statusCell.value = data.status;
-        statusCell.font = {
-          name: 'Calibri',
-          size: 11,
-          bold: true,
-          color: { argb: data.status === 'PASSED' ? 'FF00B050' : 'FFFF0000' }
+        statusCell.value = status;
+        statusCell.style = {
+          ...statusCell.style,
+          font: {
+            name: 'Calibri',
+            size: 11,
+            bold: true,
+            color: { argb: isPassedStatus ? 'FF00B050' : 'FFFF0000' }
+          },
+          alignment: { vertical: 'middle', horizontal: 'center' },
+          border: thinBorder
         };
-        statusCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
         // Cột Date
         dateCell.value = currentDate;
-        dateCell.alignment = { vertical: 'middle', horizontal: 'center' };
+        dateCell.style = {
+          ...dateCell.style,
+          alignment: { vertical: 'middle', horizontal: 'center' },
+          border: thinBorder
+        };
 
         // Cột Note
         noteCell.value = data.noteMessage;
-        noteCell.font = {
-          name: 'Calibri',
-          size: 10,
-          color: { argb: data.status === 'PASSED' ? 'FF385723' : 'FFC00000' }
-        };
-        noteCell.alignment = {
-          vertical: 'middle',
-          horizontal: 'left',
-          wrapText: true
+        noteCell.style = {
+          ...noteCell.style,
+          font: {
+            name: 'Calibri',
+            size: 10,
+            color: { argb: isPassedStatus ? 'FF385723' : 'FFC00000' }
+          },
+          alignment: {
+            vertical: 'middle',
+            horizontal: 'left',
+            wrapText: true
+          },
+          border: thinBorder
         };
       }
     });
 
     await workbook.xlsx.writeFile(outputPath);
-    console.log(`\nĐã xuất file báo cáo định dạng chuẩn đẹp: ${outputPath}`);
+    console.log(`\n🎉 Đã xuất file báo cáo định dạng chuẩn đẹp: ${outputPath}`);
   }
 }
