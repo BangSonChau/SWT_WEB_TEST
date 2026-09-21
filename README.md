@@ -248,9 +248,9 @@ reporter được cấu hình để xuất `Test_Report.xlsx`.
 - `TC_LOG_01` trong Excel kỳ vọng URL `/dashboard`. Đây là expected output
   chuẩn; nếu code hiện tại chưa có route này thì cần bổ sung hoặc điều chỉnh
   code theo Excel trước khi coi test là đạt.
-- Excel reporter hiện đọc file nguồn tên `Book1.xlsx`, còn file mẫu trong
-  repository là `test-case.xlsx`. Khi triển khai reporter, file nguồn cần được
-  đổi sang `test-case.xlsx` để thống nhất với file chuẩn.
+- Excel reporter sử dụng trực tiếp `test-case.xlsx` làm file nguồn và ghi kết
+  quả ra `Test_Report.xlsx`. Project không cần và không sử dụng file
+  `Book1.xlsx`.
 - Thông tin tài khoản trong Excel là dữ liệu mẫu phục vụ test. Khi thay bằng
   tài khoản thật, không commit password hoặc secret vào repository.
 

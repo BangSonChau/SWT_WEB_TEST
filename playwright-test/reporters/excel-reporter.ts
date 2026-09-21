@@ -38,14 +38,14 @@ export default class ExcelReporter implements Reporter {
   }
 
   async onEnd(result: FullResult) {
-    const inputPath = path.resolve(process.cwd(), 'Book1.xlsx');
+    const inputPath = path.resolve(process.cwd(), 'test-case.xlsx');
     const outputPath = path.resolve(process.cwd(), 'Test_Report.xlsx');
 
     const workbook = new ExcelJS.Workbook();
     try {
       await workbook.xlsx.readFile(inputPath);
     } catch {
-      console.error('❌ Không tìm thấy file Book1.xlsx để ghi báo cáo!');
+      console.error('❌ Không tìm thấy file test-case.xlsx để ghi báo cáo!');
       return;
     }
 
