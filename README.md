@@ -251,7 +251,9 @@ npm run test:headed
 File `run-tool.bat` cũng cung cấp menu để chạy UI Mode hoặc chạy headed.
 
 Sau khi chạy, Playwright tạo HTML report trong `playwright-report/`. Excel
-reporter được cấu hình để xuất `artifacts/reports/Test_Report.xlsx`.
+reporter đọc workbook đầu vào `test-data/input/test-cases.xlsx`, cập nhật kết quả
+trên sheet `Infomation` và xuất một file mới tại `artifacts/reports/Test_Report.xlsx`;
+file input không bị ghi đè.
 
 ## 10. Tài liệu test
 

@@ -1,12 +1,16 @@
+import { mkdir } from 'node:fs/promises';
+import path from 'node:path';
 import ExcelJS from 'exceljs';
 import { environments } from '../../config/environments';
 import { TestCaseResult } from './types';
 
 export async function writeExcelReport(results: Record<string, TestCaseResult>): Promise<void> {
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(environments.reportWorkbook);
+  await workbook.xlsx.readFile(environments.inputWorkbook);
   const sheet = workbook.getWorksheet('Infomation') || workbook.getWorksheet('Q3') || workbook.worksheets[0];
-  if (!sheet) return;
+  if (!sheet) {
+    throw new Error(`Không tìm thấy worksheet để xuất báo cáo trong ${environments.inputWorkbook}`);
+  }
 
   const values = Object.values(results);
   const passCount = values.filter((item) => item.status === 'PASSED').length;
@@ -53,5 +57,6 @@ export async function writeExcelReport(results: Record<string, TestCaseResult>):
     row.getCell(noteColumn).value = result.noteMessage;
     row.getCell(noteColumn).style = { ...row.getCell(noteColumn).style, font: { name: 'Calibri', size: 10, color: { argb: passed ? 'FF385723' : 'FFC00000' } }, alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }, border };
   });
+  await mkdir(path.dirname(environments.reportWorkbook), { recursive: true });
   await workbook.xlsx.writeFile(environments.reportWorkbook);
 }
